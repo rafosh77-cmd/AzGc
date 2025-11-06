@@ -1,0 +1,3 @@
+inputs:
+  - terraform/azure/tfplan.json
+  - terraform/gcp/tfplan.json
