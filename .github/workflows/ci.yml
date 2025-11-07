@@ -1,28 +1,39 @@
-         # ----------  GCP login via Workload Identity Federation  ----------
-   - name: Authenticate to Google Cloud
-     uses: google-github-actions/auth@v2
-     with:
-       workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-       service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+        name: Multi-Cloud Terraform CI
+on:
+  push:
+    branches: [ main ]
 
-   - name: Setup gcloud
-     uses: google-github-actions/setup-gcloud@v2
-     with:
-       project_id: defender-lab
-       export_default_credentials: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-   # ----------  Terraform validate & plan (GCP) ----------
-   - name: Terraform init (GCP)
-     working-directory: terraform/gcp
-     run: terraform init -input=false
+      # ----------  GCP login via Workload Identity Federation  ----------
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-   - name: Terraform plan (GCP)
-     working-directory: terraform/gcp
-     run: terraform plan -out=tfplan -input=false
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: defender-lab
+          export_default_credentials: true
 
-   - name: Export plan JSON (GCP)
-     working-directory: terraform/gcp
-     run: terraform show -json tfplan > tfplan.json
+      # ----------  Terraform validate & plan (GCP) ----------
+      - name: Terraform init (GCP)
+        working-directory: terraform/gcp
+        run: terraform init -input=false
+
+      - name: Terraform plan (GCP)
+        working-directory: terraform/gcp
+        run: terraform plan -out=tfplan -input=false
+
+      - name: Export plan JSON (GCP)
+        working-directory: terraform/gcp
+        run: terraform show -json tfplan > tfplan.json
 
 
 
