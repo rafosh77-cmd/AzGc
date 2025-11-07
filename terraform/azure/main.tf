@@ -12,8 +12,7 @@ provider "azurerm" {
   tenant_id       = "9f0e803b-780b-4457-b633-af64c3d4e962"
 }
 
-variable "prefix"   { default = "lab" }
-variable "location" { default = "East US" }
+
 
 locals {
   tags = { env = "lab", owner = "lab" }

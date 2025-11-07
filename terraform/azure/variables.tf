@@ -1,2 +1,2 @@
-variable "prefix" {}
-variable "location" {}
+variable "prefix"   { default = "lab" }
+variable "location" { default = "East US" }
