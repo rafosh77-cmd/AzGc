@@ -1,4 +1,5 @@
         name: Multi-Cloud Terraform CI
+
 on:
   push:
     branches: [ main ]
@@ -6,6 +7,7 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -34,6 +36,7 @@ jobs:
       - name: Export plan JSON (GCP)
         working-directory: terraform/gcp
         run: terraform show -json tfplan > tfplan.json
+
 
 
 
