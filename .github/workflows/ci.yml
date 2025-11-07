@@ -8,6 +8,10 @@ jobs:
   validate:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write        # Required for OIDC authentication
+      contents: read         # Allows repo checkout
+
     steps:
       - uses: actions/checkout@v4
 
@@ -36,6 +40,7 @@ jobs:
       - name: Export plan JSON (GCP)
         working-directory: terraform/gcp
         run: terraform show -json tfplan > tfplan.json
+
 
 
 
