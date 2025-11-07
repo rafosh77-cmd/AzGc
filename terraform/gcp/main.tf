@@ -11,10 +11,7 @@ provider "google" {
   region  = "us-central1"
 }
 
-variable "labels" {
-  type    = map(string)
-  default = { env = "lab", owner = "lab" }
-}
+
 
 resource "random_id" "rand" {
   byte_length = 3
@@ -44,7 +41,10 @@ resource "google_compute_subnetwork" "subnet" {
 resource "google_compute_firewall" "allow_https" {
   name    = "allow-https"
   network = google_compute_network.vpc.name
-  allow { protocol = "tcp", ports = ["443"] }
+  allow {
+  protocol = "tcp"
+  ports    = ["443"]
+}
   direction     = "INGRESS"
   source_ranges = ["0.0.0.0/0"]
 }
