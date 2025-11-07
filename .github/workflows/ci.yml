@@ -39,8 +39,9 @@ jobs:
         run: terraform init -input=false
 
       - name: Terraform plan (GCP)
-        working-directory: terraform/gcp
-        run: terraform plan -out=tfplan -input=false
+  working-directory: terraform/gcp
+  run: terraform plan -out=tfplan -input=false -var 'labels={environment="lab",owner="github"}'
+
 
       - name: Export plan JSON (GCP)
         working-directory: terraform/gcp
