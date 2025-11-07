@@ -9,13 +9,14 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      id-token: write
       contents: read
+      id-token: write  # required for GCP Workload Identity Federation
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # ---------- Authenticate to Google Cloud ----------
+      # ----------  GCP login via Workload Identity Federation  ----------
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -27,25 +28,24 @@ jobs:
         with:
           project_id: defender-lab
 
-      # ---------- Install Terraform ----------
+      # ----------  Terraform validate & plan (GCP) ----------
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.9.7
+          terraform_version: 1.9.8
 
-      # ---------- Terraform validate & plan (GCP) ----------
       - name: Terraform init (GCP)
         working-directory: terraform/gcp
         run: terraform init -input=false
 
       - name: Terraform plan (GCP)
-  working-directory: terraform/gcp
-  run: terraform plan -out=tfplan -input=false -var 'labels={environment="lab",owner="github"}'
-
+        working-directory: terraform/gcp
+        run: terraform plan -out=tfplan -input=false -var 'labels={environment="lab",owner="github"}'
 
       - name: Export plan JSON (GCP)
         working-directory: terraform/gcp
         run: terraform show -json tfplan > tfplan.json
+
 
 
 
