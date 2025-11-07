@@ -1,4 +1,4 @@
-        name: Multi-Cloud Terraform CI
+name: Multi-Cloud Terraform CI
 
 on:
   push:
