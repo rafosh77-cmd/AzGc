@@ -1,0 +1,46 @@
+name: Azure Policy & Terraform CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  validate-azure:
+    runs-on: ubuntu-latest
+    env:
+      TF_IN_AUTOMATION: "true"
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update && sudo apt-get install -y unzip jq python3-pip
+          curl -L https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip -o tf.zip && unzip tf.zip && sudo mv terraform /usr/local/bin/
+          curl -L https://github.com/aquasecurity/tfsec/releases/latest/download/tfsec-linux-amd64 -o /usr/local/bin/tfsec && chmod +x /usr/local/bin/tfsec
+          curl -L https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_Linux_x86_64.tar.gz | tar xz && sudo mv conftest /usr/local/bin/
+          pip3 install checkov
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Terraform init & validate (Azure)
+        working-directory: terraform/azure
+        run: |
+          terraform init -input=false
+          terraform validate
+
+      - name: tfsec scan (Azure)
+        run: tfsec terraform/azure || true
+
+      - name: checkov scan (Azure)
+        run: checkov -d terraform/azure || true
+
+      - name: conftest scan (Azure)
+        run: conftest test policies --input terraform terraform/azure/tfplan.json || true
+
