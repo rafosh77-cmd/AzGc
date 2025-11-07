@@ -1,31 +1,28 @@
-name: Azure Policy & Terraform CI
-
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Azure Login
-        uses: azure/login@v2
+      # ----------  GCP login via Workload Identity Federation  ----------
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          workload_identity_provider: ${{ projects/570322564029/locations/global/workloadIdentityPools/github-pool/providers/github }}
+          service_account: ${{ github-terraform@defender-lab.iam.gserviceaccount.com }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
         with:
-          terraform_version: 1.9.7  # or any stable version
+          project_id: defender-lab
+          export_default_credentials: true
 
-      - name: Terraform Init & Validate (Azure)
-        run: |
-          cd terraform/azure
-          terraform init -input=false
-          terraform validate
+      # ----------  Terraform validate & plan (GCP) ----------
+      - name: Terraform init (GCP)
+        working-directory: terraform/gcp
+        run: terraform init -input=false
+
+      - name: Terraform plan (GCP)
+        working-directory: terraform/gcp
+        run: terraform plan -out=tfplan -input=false
+
+      - name: Export plan JSON (GCP)
+        working-directory: terraform/gcp
+        run: terraform show -json tfplan > tfplan.json
+
 
 
