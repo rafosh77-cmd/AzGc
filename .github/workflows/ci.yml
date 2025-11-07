@@ -9,13 +9,13 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      id-token: write        # Required for OIDC authentication
-      contents: read         # Allows repo checkout
+      id-token: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
 
-      # ----------  GCP login via Workload Identity Federation  ----------
+      # ---------- Authenticate to Google Cloud ----------
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -26,9 +26,14 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: defender-lab
-          
 
-      # ----------  Terraform validate & plan (GCP) ----------
+      # ---------- Install Terraform ----------
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.7
+
+      # ---------- Terraform validate & plan (GCP) ----------
       - name: Terraform init (GCP)
         working-directory: terraform/gcp
         run: terraform init -input=false
@@ -40,6 +45,7 @@ jobs:
       - name: Export plan JSON (GCP)
         working-directory: terraform/gcp
         run: terraform show -json tfplan > tfplan.json
+
 
 
 
