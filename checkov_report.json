@@ -1,0 +1,10 @@
+{
+  "results": {
+    "failed_checks": [
+      {
+        "check_id": "CKV_AZURE_1",
+        "check_name": "Ensure storage account has encryption enabled"
+      }
+    ]
+  }
+}
